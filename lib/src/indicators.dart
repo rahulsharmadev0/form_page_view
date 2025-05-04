@@ -19,10 +19,10 @@ class FormPageViewProgressIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final ctr = FormPageView.of(context);
     return ValueListenableBuilder(
-      valueListenable: ctr.currentPageIndex,
+      valueListenable: ctr.pageState,
       builder: (context, value, child) {
         // Handle the case when there's only one page
-        var progress = ctr.totalPage <= 1 ? 1.0 : value / (ctr.totalPage - 1);
+        var progress = ctr.totalPage <= 1 ? 1.0 : value.current / (ctr.totalPage - 1);
         return TweenAnimationBuilder<double>(
           tween: Tween<double>(begin: 0, end: progress),
           duration: duration,
@@ -124,4 +124,82 @@ class FormPageViewProgressIndicator extends StatelessWidget {
     },
     child: child,
   );
+
+  /// Creates a custom stepped progress indicator for FormPageView
+  factory FormPageViewProgressIndicator.stepped({
+    required Duration duration,
+    required Curve curve,
+    int? steps,
+    Color? activeColor,
+    Color? inactiveColor,
+    double stepSize = 10.0,
+    double spacing = 4.0,
+    StepShape shape = StepShape.circle,
+    bool debugMode = false,
+  }) {
+    return FormPageViewProgressIndicator(
+      duration: duration,
+      curve: curve,
+
+      builder: (context, value, _) {
+        final theme = Theme.of(context);
+        final activeStepColor = activeColor ?? theme.primaryColor;
+        final inactiveStepColor = inactiveColor ?? theme.disabledColor;
+        int _steps = steps ?? FormPageView.of(context).totalPage;
+        _steps -= 1;
+        final activeSteps = (value * _steps).floor();
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(_steps, (index) {
+            final isActive = index < activeSteps;
+
+            Widget step;
+            switch (shape) {
+              case StepShape.circle:
+                step = Container(
+                  width: stepSize,
+                  height: stepSize,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isActive ? activeStepColor : inactiveStepColor,
+                  ),
+                );
+                break;
+
+              case StepShape.square:
+                step = Container(
+                  width: stepSize,
+                  height: stepSize,
+                  decoration: BoxDecoration(
+                    color: isActive ? activeStepColor : inactiveStepColor,
+                  ),
+                );
+                break;
+
+              case StepShape.rectangle:
+                step = Container(
+                  width: stepSize * 2,
+                  height: stepSize,
+
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(2),
+                    color: isActive ? activeStepColor : inactiveStepColor,
+                  ),
+                );
+                break;
+            }
+
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: spacing / 2),
+              child: step,
+            );
+          }),
+        );
+      },
+    );
+  }
 }
+
+/// Shape options for stepped progress indicator
+enum StepShape { circle, square, rectangle }

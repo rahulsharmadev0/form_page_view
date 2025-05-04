@@ -24,50 +24,56 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var list = [
-      HomePage(title: 'HomePage 1'), //
-      HomePage(title: 'HomePage 2'), //
-      HomePage(title: 'HomePage 3'), //
-      HomePage(title: 'HomePage 4'), //
-      HomePage(title: 'HomePage 5'), //
-      HomePage(title: 'HomePage 6'), //
+    const list = <PageBuilderItem>[
+      (page: HomePage(title: 'HomePage 1'), isRequired: true, isComplete: true),
+      (page: HomePage(title: 'HomePage 2'), isRequired: true, isComplete: true),
+      (page: HomePage(title: 'HomePage 3'), isRequired: true, isComplete: false),
+      (page: HomePage(title: 'HomePage 4'), isRequired: true, isComplete: true),
+      (page: HomePage(title: 'HomePage 5'), isRequired: false, isComplete: false),
+      (page: HomePage(title: 'HomePage 6'), isRequired: true, isComplete: true),
     ];
-    return FormPageView(
-      totalPage: list.length,
-      spacing: 16,
-      topBuilder: (context) {
-        return [
-          FormPageViewProgressIndicator.linear(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            trackGap: 8,
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ];
-      },
-      pagebuilder: (context) => list,
-      bottomBuilder: (context) {
-        return [
-          TextButton(
-            onPressed: () {
-              FormPageView.of(context).previousPage(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              );
-            },
-            child: const Text('Previous'),
-          ),
-          TextButton(
-            onPressed: () {
-              FormPageView.of(context).nextPage(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              );
-            },
-            child: const Text('Next'),
-          ),
-        ];
-      },
+    return Scaffold(
+      body: FormPageView(
+        totalPage: list.length,
+        spacing: 16,
+        topBuilder: (context) {
+          return [
+            FormPageViewProgressIndicator.linear(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            ),
+            FormPageViewProgressIndicator.stepped(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+
+              shape: StepShape.circle,
+            ),
+          ];
+        },
+        pageBuilder: (context) => list,
+        bottomBuilder: (context) {
+          return [
+            TextButton(
+              onPressed: () {
+                FormPageView.of(context).previousPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              },
+              child: const Text('Previous'),
+            ),
+            TextButton(
+              onPressed: () {
+                FormPageView.of(context).nextPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              },
+              child: const Text('Next'),
+            ),
+          ];
+        },
+      ),
     );
   }
 }
@@ -78,25 +84,16 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(title),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              FormPageView.of(context).jumpToPage(0);
-            },
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[const Text('You have pushed the button this many times:')],
-        ),
-      ),
+    return FormPage(
+      title: title,
+      subtitle: 'Subtitle content',
+      description: 'Description content',
+      builder:
+          (context) => [
+            Center(child: Text(title)),
+            Center(child: Text(title)),
+            Center(child: Text(title)),
+          ],
     );
   }
 }

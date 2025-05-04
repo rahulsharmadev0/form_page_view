@@ -24,12 +24,15 @@ class _FormViewControllerProvider extends InheritedWidget {
   }
 }
 
+typedef PageBuilderItem = ({Widget page, bool isRequired, bool isComplete});
+typedef PageBuilder = List<PageBuilderItem> Function(BuildContext context);
+
 class FormPageView extends StatefulWidget {
   final int initialPage;
   final int totalPage;
   final EdgeInsetsGeometry? contentPadding;
   final Function(int)? onPageChanged;
-  final List<Widget> Function(BuildContext context) pagebuilder;
+  final PageBuilder pageBuilder;
   final List<Widget> Function(BuildContext context)? topBuilder;
   final List<Widget> Function(BuildContext context)? bottomBuilder;
   final ScrollPhysics? physics;
@@ -37,9 +40,9 @@ class FormPageView extends StatefulWidget {
 
   const FormPageView({
     super.key,
-    required this.pagebuilder,
-    this.initialPage = 0,
-    this.spacing = 0,
+    required this.pageBuilder,
+    @Deprecated('Use `PageBuilderItem` instead') this.initialPage = 0,
+    this.spacing = 16,
     required this.totalPage,
     this.contentPadding,
     this.topBuilder,
@@ -57,12 +60,17 @@ class FormPageView extends StatefulWidget {
 
 class _FormPageViewState extends State<FormPageView> {
   late final FormPageViewController controller;
+  late final list = widget.pageBuilder(context);
 
   @override
   void initState() {
     super.initState();
+    int initalIndex = list.indexWhere((e) => e.isRequired && !e.isComplete);
+    if (initalIndex == -1) {
+      initalIndex = widget.initialPage;
+    }
     controller = FormPageViewController._internal(
-      initialPage: widget.initialPage,
+      initialPage: initalIndex,
       totalPage: widget.totalPage,
     );
   }
@@ -83,7 +91,7 @@ class _FormPageViewState extends State<FormPageView> {
           itemCount: controller.totalPage,
           physics: widget.physics ?? const NeverScrollableScrollPhysics(),
           onPageChanged: widget.onPageChanged,
-          itemBuilder: (context, i) => widget.pagebuilder(context)[i],
+          itemBuilder: (context, i) => list[i].page,
         );
         return widget.topBuilder == null && widget.bottomBuilder == null
             ? pageView
