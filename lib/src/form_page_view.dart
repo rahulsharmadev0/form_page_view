@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:form_page_view/src/utils.dart';
 part 'form_page_view_controller.dart';
 
 class _FormViewControllerProvider extends InheritedWidget {
@@ -10,12 +11,15 @@ class _FormViewControllerProvider extends InheritedWidget {
   }) : super(child: Builder(builder: builder));
 
   static FormPageViewController of(BuildContext context) {
-    final provider =
-        context.dependOnInheritedWidgetOfExactType<_FormViewControllerProvider>();
-    if (provider == null) {
-      throw FlutterError('FormViewControllerProvider not found in context');
+    final controller =
+        context
+            .dependOnInheritedWidgetOfExactType<_FormViewControllerProvider>()
+            ?.controller ??
+        context.findAncestorWidgetOfExactType<FormPageView>()?.controller;
+    if (controller == null) {
+      throw FlutterError('FormPageViewController not found in context');
     }
-    return provider.controller;
+    return controller;
   }
 
   @override
@@ -23,9 +27,6 @@ class _FormViewControllerProvider extends InheritedWidget {
     return controller != oldWidget.controller;
   }
 }
-
-typedef PageBuilderItem = ({Widget page, bool isRequired, bool Function() whenComplete});
-typedef PageBuilder = List<PageBuilderItem> Function(BuildContext context);
 
 class FormPageView extends StatefulWidget {
   final int initialPage;

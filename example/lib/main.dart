@@ -54,12 +54,13 @@ class MyHomePage extends StatelessWidget {
         bottomBuilder: (context) {
           return [
             TextButton(
-              onPressed: () {
-                FormPageView.of(context).previousPage(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                );
-              },
+              onPressed:
+                  list[FormPageView.of(context).currentIndex].isRequirementFulfilled
+                      ? () => FormPageView.of(context).previousPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      )
+                      : null,
               child: const Text('Previous'),
             ),
             TextButton(
