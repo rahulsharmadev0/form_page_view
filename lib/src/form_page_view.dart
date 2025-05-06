@@ -24,12 +24,13 @@ class _FormViewControllerProvider extends InheritedWidget {
   }
 }
 
-typedef PageBuilderItem = ({Widget page, bool isRequired, bool isComplete});
+typedef PageBuilderItem = ({Widget page, bool isRequired, bool Function() whenComplete});
 typedef PageBuilder = List<PageBuilderItem> Function(BuildContext context);
 
 class FormPageView extends StatefulWidget {
   final int initialPage;
   final int totalPage;
+  final FormPageViewController? controller;
   final EdgeInsetsGeometry? contentPadding;
   final Function(int)? onPageChanged;
   final PageBuilder pageBuilder;
@@ -41,6 +42,7 @@ class FormPageView extends StatefulWidget {
   const FormPageView({
     super.key,
     required this.pageBuilder,
+    this.controller,
     @Deprecated('Use `PageBuilderItem` instead') this.initialPage = 0,
     this.spacing = 16,
     required this.totalPage,
@@ -65,19 +67,23 @@ class _FormPageViewState extends State<FormPageView> {
   @override
   void initState() {
     super.initState();
-    int initalIndex = list.indexWhere((e) => e.isRequired && !e.isComplete);
+    int initalIndex = list.indexWhere((e) => e.isRequired && !e.whenComplete());
     if (initalIndex == -1) {
       initalIndex = widget.initialPage;
     }
-    controller = FormPageViewController._internal(
-      initialPage: initalIndex,
-      totalPage: widget.totalPage,
-    );
+    controller =
+        widget.controller ??
+        FormPageViewController._internal(
+          initialPage: initalIndex,
+          totalPage: widget.totalPage,
+        );
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    if (widget.controller == null) {
+      controller.dispose();
+    }
     super.dispose();
   }
 

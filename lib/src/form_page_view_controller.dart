@@ -22,6 +22,16 @@ class FormPageViewController {
     _pageController.addListener(_pageNotifyListeners);
   }
 
+  factory FormPageViewController({int initialPage = 0, required int totalPage}) {
+    if (totalPage <= 0) {
+      throw ArgumentError('Total pages must be greater than zero.');
+    }
+    return FormPageViewController._internal(
+      initialPage: initialPage,
+      totalPage: totalPage,
+    );
+  }
+
   void _pageNotifyListeners() {
     var current = _pageController.page?.round() ?? 0;
     if (current != pageState.value.current) {

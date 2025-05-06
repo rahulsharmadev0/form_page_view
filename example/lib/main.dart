@@ -24,13 +24,13 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const list = <PageBuilderItem>[
-      (page: HomePage(title: 'HomePage 1'), isRequired: true, isComplete: true),
-      (page: HomePage(title: 'HomePage 2'), isRequired: true, isComplete: true),
-      (page: HomePage(title: 'HomePage 3'), isRequired: true, isComplete: false),
-      (page: HomePage(title: 'HomePage 4'), isRequired: true, isComplete: true),
-      (page: HomePage(title: 'HomePage 5'), isRequired: false, isComplete: false),
-      (page: HomePage(title: 'HomePage 6'), isRequired: true, isComplete: true),
+    final list = <PageBuilderItem>[
+      (page: HomePage(title: 'HomePage 1'), isRequired: true, whenComplete: () => true),
+      (page: HomePage(title: 'HomePage 2'), isRequired: true, whenComplete: () => true),
+      (page: HomePage(title: 'HomePage 3'), isRequired: true, whenComplete: () => false),
+      (page: HomePage(title: 'HomePage 4'), isRequired: true, whenComplete: () => true),
+      (page: HomePage(title: 'HomePage 5'), isRequired: false, whenComplete: () => false),
+      (page: HomePage(title: 'HomePage 6'), isRequired: true, whenComplete: () => true),
     ];
     return Scaffold(
       body: FormPageView(
