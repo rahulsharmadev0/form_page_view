@@ -32,7 +32,7 @@ class _SimpleDemoPageState extends State<SimpleDemoPage> {
         title: 'What\'s your name?',
         subtitle: 'Let us know how to address you',
         isRequired: true,
-        whenComplete: _isNameValid,
+        
         builderItems: (context) => [
           TextFormField(
             controller: _nameController,
@@ -49,7 +49,7 @@ class _SimpleDemoPageState extends State<SimpleDemoPage> {
         title: 'Your email address',
         subtitle: 'We\'ll use this to contact you',
         isRequired: true,
-        whenComplete: _isEmailValid,
+        
         builderItems: (context) => [
           TextFormField(
             controller: _emailController,

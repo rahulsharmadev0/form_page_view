@@ -390,7 +390,7 @@ class _FormDemoPageState extends State<FormDemoPage> {
       subtitle: 'Where do you live?',
       description: 'We need this information for delivery',
       isRequired: true,
-      whenComplete: _isAddressComplete,
+      
       builderItems:
           (context) => [
             TextFormField(
@@ -454,7 +454,7 @@ class _FormDemoPageState extends State<FormDemoPage> {
       subtitle: 'How would you like to pay?',
       description: 'Your payment information is secure',
       isRequired: true,
-      whenComplete: _isPaymentComplete,
+      
       builderItems:
           (context) => [
             Card(
@@ -538,7 +538,7 @@ class _FormDemoPageState extends State<FormDemoPage> {
       subtitle: 'Please review and accept',
       description: 'You must accept the terms to continue',
       isRequired: true,
-      whenComplete: _isTermsAccepted,
+      
       builderItems:
           (context) => [
             Container(

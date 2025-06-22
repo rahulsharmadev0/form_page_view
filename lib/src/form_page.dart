@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 
 /// Common UI component for form pages
 class FormPage extends StatelessWidget {
-  final String title;
+  final Object title;
   final String? subtitle;
   final String? description;
   final double spacing;
   final EdgeInsetsGeometry padding;
   final bool isRequired;
-  final bool Function()? whenComplete;
   final List<Widget> Function(BuildContext context)? builderItems;
   final Widget Function(BuildContext context)? builder;
 
@@ -21,13 +20,24 @@ class FormPage extends StatelessWidget {
     this.description,
     this.spacing = 16,
     this.isRequired = false,
-    this.whenComplete,
     this.padding = const EdgeInsets.all(16.0),
-  }) : assert((builderItems != null) ^ (builder != null), 'Exactly one of builderItems or builder must be provided');
+  }) : assert(
+         (builderItems != null) ^ (builder != null),
+         'Exactly one of builderItems or builder must be provided',
+       ),
+       assert(
+         title is String || title is Widget,
+         'title must be either a String or Widget',
+       );
 
   @override
   Widget build(BuildContext context) {
-    Widget textWidget = Text(title, style: Theme.of(context).textTheme.titleLarge);
+    Widget textWidget;
+    if (title is String) {
+      textWidget = Text(title as String, style: Theme.of(context).textTheme.titleLarge);
+    } else {
+      textWidget = title as Widget;
+    }
 
     return SingleChildScrollView(
       padding: padding,

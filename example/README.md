@@ -60,7 +60,7 @@ FormPage(
   title: 'Personal Information',
   subtitle: 'Tell us about yourself',
   isRequired: true,
-  whenComplete: _isPersonalInfoComplete,
+  
   builder: (context) => [
     // Form fields...
   ],
