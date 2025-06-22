@@ -32,3 +32,4 @@ web
 .flutter-plugins
 .flutter-plugins-dependencies
 build/
+android

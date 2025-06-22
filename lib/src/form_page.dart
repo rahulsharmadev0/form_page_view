@@ -7,17 +7,23 @@ class FormPage extends StatelessWidget {
   final String? description;
   final double spacing;
   final EdgeInsetsGeometry padding;
-  final List<Widget> Function(BuildContext context) builder;
+  final bool isRequired;
+  final bool Function()? whenComplete;
+  final List<Widget> Function(BuildContext context)? builderItems;
+  final Widget Function(BuildContext context)? builder;
 
   const FormPage({
     super.key,
     required this.title,
-    required this.builder,
+    this.builderItems,
+    this.builder,
     this.subtitle,
     this.description,
     this.spacing = 16,
+    this.isRequired = false,
+    this.whenComplete,
     this.padding = const EdgeInsets.all(16.0),
-  });
+  }) : assert((builderItems != null) ^ (builder != null), 'Exactly one of builderItems or builder must be provided');
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +46,7 @@ class FormPage extends StatelessWidget {
               ],
             ],
           ),
-          ...builder(context),
+          ...(builderItems?.call(context) ?? [builder!(context)]),
           if (description != null) ...[
             SizedBox(height: spacing),
             Align(

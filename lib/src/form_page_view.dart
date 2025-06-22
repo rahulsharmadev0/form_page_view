@@ -1,5 +1,8 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:form_page_view/src/utils.dart';
+import 'package:form_page_view/form_page_view.dart';
 part 'form_page_view_controller.dart';
 
 class _FormViewControllerProvider extends InheritedWidget {
@@ -34,7 +37,8 @@ class FormPageView extends StatefulWidget {
   final FormPageViewController? controller;
   final EdgeInsetsGeometry? contentPadding;
   final Function(int)? onPageChanged;
-  final PageBuilder pageBuilder;
+  final bool shouldSkipToFirstRequiredPage;
+  final List<FormPage> Function(BuildContext context) pageBuilder;
   final List<Widget> Function(BuildContext context)? topBuilder;
   final List<Widget> Function(BuildContext context)? bottomBuilder;
   final ScrollPhysics? physics;
@@ -44,8 +48,9 @@ class FormPageView extends StatefulWidget {
     super.key,
     required this.pageBuilder,
     this.controller,
-    @Deprecated('Use `PageBuilderItem` instead') this.initialPage = 0,
+    this.initialPage = 0,
     this.spacing = 16,
+    this.shouldSkipToFirstRequiredPage =false,
     required this.totalPage,
     this.contentPadding,
     this.topBuilder,
@@ -68,9 +73,9 @@ class _FormPageViewState extends State<FormPageView> {
   @override
   void initState() {
     super.initState();
-    int initalIndex = list.indexWhere((e) => e.isRequired && !e.whenComplete());
-    if (initalIndex == -1) {
-      initalIndex = widget.initialPage;
+    int initalIndex = widget.initialPage;
+    if (widget.shouldSkipToFirstRequiredPage) {
+    initalIndex = list.indexWhere((e) => e.isRequired && !e.isRequirementFulfilled);
     }
     controller =
         widget.controller ??
@@ -98,15 +103,16 @@ class _FormPageViewState extends State<FormPageView> {
           itemCount: controller.totalPage,
           physics: widget.physics ?? const NeverScrollableScrollPhysics(),
           onPageChanged: widget.onPageChanged,
-          itemBuilder: (context, i) => list[i].page,
+          itemBuilder: (context, i) => list[i],
         );
+
         return widget.topBuilder == null && widget.bottomBuilder == null
             ? pageView
             : Column(
               spacing: widget.spacing,
               children: [
                 if (widget.topBuilder != null) ...widget.topBuilder!(context),
-                Expanded(child: pageView),
+                 Expanded(child: pageView),
                 if (widget.bottomBuilder != null) ...widget.bottomBuilder!(context),
               ],
             );

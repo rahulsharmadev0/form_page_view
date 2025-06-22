@@ -12,7 +12,7 @@ class FormPageViewController {
   final PageController _pageController;
   final int totalPage;
   final ValueNotifier<({int? previous, int current})> pageState;
-
+  
   int get currentIndex => pageState.value.current;
   int get previousIndex => pageState.value.previous ?? -1;
 
