@@ -1,14 +1,12 @@
 import 'dart:async';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:form_page_view/form_page_view.dart';
 part 'form_page_view_controller.dart';
 
-class _FormViewControllerProvider extends InheritedWidget {
+class FormPageViewControllerProvider extends InheritedWidget {
   final FormPageViewController controller;
 
-  _FormViewControllerProvider({
+  FormPageViewControllerProvider({super.key, 
     required Widget Function(BuildContext) builder,
     required this.controller,
   }) : super(child: Builder(builder: builder));
@@ -16,7 +14,7 @@ class _FormViewControllerProvider extends InheritedWidget {
   static FormPageViewController of(BuildContext context) {
     final controller =
         context
-            .dependOnInheritedWidgetOfExactType<_FormViewControllerProvider>()
+            .dependOnInheritedWidgetOfExactType<FormPageViewControllerProvider>()
             ?.controller ??
         context.findAncestorWidgetOfExactType<FormPageView>()?.controller;
     if (controller == null) {
@@ -26,97 +24,68 @@ class _FormViewControllerProvider extends InheritedWidget {
   }
 
   @override
-  bool updateShouldNotify(_FormViewControllerProvider oldWidget) {
+  bool updateShouldNotify(FormPageViewControllerProvider oldWidget) {
     return controller != oldWidget.controller;
   }
 }
 
 class FormPageView extends StatefulWidget {
-  final int initialPage;
-  final int totalPage;
-  final FormPageViewController? controller;
+  final FormPageViewController controller;
   final EdgeInsetsGeometry? contentPadding;
   final Function(int)? onPageChanged;
-  final bool shouldSkipToFirstRequiredPage;
-  final List<FormPage> Function(BuildContext context) pageBuilder;
   final List<Widget> Function(BuildContext context)? topBuilder;
   final List<Widget> Function(BuildContext context)? bottomBuilder;
   final ScrollPhysics? physics;
   final double spacing;
+  final Map<String, dynamic> initialValue;
 
   const FormPageView({
     super.key,
-    required this.pageBuilder,
-    this.controller,
-    this.initialPage = 0,
+    required this.controller,
     this.spacing = 16,
-    this.shouldSkipToFirstRequiredPage =false,
-    required this.totalPage,
     this.contentPadding,
     this.topBuilder,
     this.bottomBuilder,
     this.physics,
     this.onPageChanged,
+    this.initialValue = const <String, dynamic>{},
   });
 
   static FormPageViewController of(BuildContext context) =>
-      _FormViewControllerProvider.of(context);
+      FormPageViewControllerProvider.of(context);
 
   @override
   State<FormPageView> createState() => _FormPageViewState();
 }
 
 class _FormPageViewState extends State<FormPageView> {
-  late final FormPageViewController controller;
-  late final list = widget.pageBuilder(context);
-
-  @override
-  void initState() {
-    super.initState();
-    int initalIndex = widget.initialPage;
-    if (widget.shouldSkipToFirstRequiredPage) {
-    initalIndex = list.indexWhere((e) => e.isRequired && !e.isRequirementFulfilled);
-    }
-    controller =
-        widget.controller ??
-        FormPageViewController._internal(
-          initialPage: initalIndex,
-          totalPage: widget.totalPage,
-        );
-  }
-
-  @override
-  void dispose() {
-    if (widget.controller == null) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
+  List get list => widget.controller._formPages;
 
   @override
   Widget build(BuildContext context) {
-    return _FormViewControllerProvider(
-      controller: controller,
-      builder: (context) {
-        final pageView = PageView.builder(
-          controller: controller._pageController,
-          itemCount: controller.totalPage,
-          physics: widget.physics ?? const NeverScrollableScrollPhysics(),
-          onPageChanged: widget.onPageChanged,
-          itemBuilder: (context, i) => list[i],
-        );
-
-        return widget.topBuilder == null && widget.bottomBuilder == null
-            ? pageView
-            : Column(
-              spacing: widget.spacing,
-              children: [
-                if (widget.topBuilder != null) ...widget.topBuilder!(context),
-                 Expanded(child: pageView),
-                if (widget.bottomBuilder != null) ...widget.bottomBuilder!(context),
-              ],
-            );
-      },
+    Widget child = PageView.builder(
+      controller: widget.controller._pageController,
+      itemCount: widget.controller.totalPage,
+      physics: widget.physics ?? const NeverScrollableScrollPhysics(),
+      onPageChanged: widget.onPageChanged,
+      itemBuilder: (context, i) => list[i],
     );
+
+    child = FormBuilder(
+      key: widget.controller.formKey,
+      initialValue: widget.initialValue,
+      child: child,
+    );
+
+    return widget.topBuilder == null && widget.bottomBuilder == null
+        ? child
+        : Column(
+          spacing: widget.spacing,
+          children: [
+            if (widget.topBuilder != null) ...widget.topBuilder!(context),
+            Expanded(child: child),
+            if (widget.bottomBuilder != null) ...widget.bottomBuilder!(context),
+          ],
+        );
   }
 }

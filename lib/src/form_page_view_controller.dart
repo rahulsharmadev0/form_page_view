@@ -10,26 +10,64 @@ typedef SpecificPageCall =
 
 class FormPageViewController {
   final PageController _pageController;
-  final int totalPage;
+  final List<Widget> _formPages;
+  final bool shouldSkipToFirstRequiredPage;
+  final List<int> optionalPageIndices;
+  int get totalPage => _formPages.length;
   final ValueNotifier<({int? previous, int current})> pageState;
-  
+
+  final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
+
+  Map<String, dynamic> get formData => formKey.currentState!.value;
+
+  bool validate() => formKey.currentState!.saveAndValidate();
+
   int get currentIndex => pageState.value.current;
   int get previousIndex => pageState.value.previous ?? -1;
 
-  FormPageViewController._internal({required int initialPage, required this.totalPage})
-    : _pageController = PageController(initialPage: initialPage),
-      pageState = ValueNotifier((previous: null, current: initialPage)) {
+  FormPageViewController({
+    required int initialPage,
+    required List<Widget> formPages,
+    this.shouldSkipToFirstRequiredPage = false,
+    this.optionalPageIndices = const [],
+  }) : _pageController = PageController(
+         initialPage: _getInitialPage(
+           initialPage,
+           formPages,
+           shouldSkipToFirstRequiredPage,
+           optionalPageIndices,
+         ),
+       ),
+       _formPages = formPages,
+       pageState = ValueNotifier((
+         previous: null,
+         current: _getInitialPage(
+           initialPage,
+           formPages,
+           shouldSkipToFirstRequiredPage,
+           optionalPageIndices,
+         ),
+       )) {
     _pageController.addListener(_pageNotifyListeners);
   }
 
-  factory FormPageViewController({int initialPage = 0, required int totalPage}) {
-    if (totalPage <= 0) {
-      throw ArgumentError('Total pages must be greater than zero.');
+  static int _getInitialPage(
+    int initialPage,
+    List<Widget> formPages,
+    bool shouldSkipToFirstRequiredPage,
+    List<int> optionalPageIndices,
+  ) {
+    if (!shouldSkipToFirstRequiredPage) {
+      return initialPage;
     }
-    return FormPageViewController._internal(
-      initialPage: initialPage,
-      totalPage: totalPage,
-    );
+
+    for (int i = 0; i < formPages.length; i++) {
+      if (!optionalPageIndices.contains(i)) {
+        return i;
+      }
+    }
+
+    return initialPage;
   }
 
   void _pageNotifyListeners() {

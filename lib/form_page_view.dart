@@ -3,4 +3,5 @@ library;
 export 'src/form_page_view.dart';
 export 'src/form_page.dart';
 export 'src/indicators.dart';
-export 'src/utils.dart';
+
+export 'package:flutter_form_builder/flutter_form_builder.dart';

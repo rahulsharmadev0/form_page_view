@@ -7,7 +7,6 @@ class FormPage extends StatelessWidget {
   final String? description;
   final double spacing;
   final EdgeInsetsGeometry padding;
-  final bool isRequired;
   final List<Widget> Function(BuildContext context)? builderItems;
   final Widget Function(BuildContext context)? builder;
 
@@ -19,7 +18,6 @@ class FormPage extends StatelessWidget {
     this.subtitle,
     this.description,
     this.spacing = 16,
-    this.isRequired = false,
     this.padding = const EdgeInsets.all(16.0),
   }) : assert(
          (builderItems != null) ^ (builder != null),
